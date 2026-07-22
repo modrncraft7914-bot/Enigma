@@ -1,0 +1,332 @@
+import random
+class Criptogtaphi:
+    def __init__(self,alphabet,colrotors,activs_rotors):
+        self.alphabet = alphabet
+        self.rotors = []
+        self.discriptor = []
+        self.panel = []
+        self.activ_rotors = []
+
+        print(f'ini data \n rotors ini ')
+        self.fake_alph = [i for i in range(len(alphabet))]
+        for ids in range(colrotors):
+            # id [] []
+            c1 = self.fake_alph.copy()
+            random.shuffle(c1)
+            print(c1)
+            c2 = self.fake_alph.copy()
+            random.shuffle(c2)
+            print(c2)
+            self.rotors.append([ids,c1,c2])
+        print(f'ini activs rotors')
+        self.activ_rotors = self.choicer_rand_nums(activs_rotors,[0,colrotors-1])
+        print(f'ini discriptor')
+        c1 = self.fake_alph.copy()
+        c2 = self.fake_alph.copy()
+        random.shuffle(c1)
+        random.shuffle(c2)
+        self.discriptor = [c1,c2]
+        print(f'ini kom panel')
+        self.panel = self.dif_init(self.fake_alph,26)
+        print(f'ini rotat move')
+        self.rotarsm = [random.randint(0,len(alphabet)) for _ in range(activs_rotors)]
+
+
+
+
+    def choicer_rand_nums(self,kol,rng):
+        nms = []
+        kol_num = 0
+        while kol_num < kol:
+            s = random.randint(rng[0],rng[1])
+            if s not in nms:
+                kol_num+=1
+                nms.append(s)
+        return nms
+
+    def dif_init(self,dt,kol: False):
+        if not kol:
+            kol = random.randint(0,len(dt))
+        kol = min(int(len(dt)/2),kol)
+        out = []
+        ot = []
+        while kol > 0:
+            c1 = random.randint(0, len(dt)-1)
+            c2 = random.randint(0,len(dt)-1)
+            if c1 not in ot and c2 not in ot and c1 != c2:
+                out.append([c1,c2])
+                ot.append(c1)
+                ot.append(c2)
+                kol -= 1
+        return out
+
+    def zips(self,data,smb:str):
+        out = ""
+        for el in data:
+            out+=f'{el}{smb}'
+        return out
+
+    def anti_zips(self,data,smb):
+        out = []
+        c = data.split(smb)
+        for el in c:
+            if el != '':
+                out.append(int(el))
+        return out
+
+    def going_panel(self,panel,symb):
+        for el in panel:
+            if el[0] == symb:
+                return el[1]
+            if el[1] == symb:
+                return el[0]
+        return symb
+
+    def rotors_m(self,rotor,smb):
+        for i,el in enumerate(rotor[1]):
+            if el == smb:
+                return rotor[2][i]
+
+    def going_all_rotor(self,rotors,smb):
+        ot = smb
+        for el in rotors:
+            ot = self.rotors_m(el,ot)
+            print(f'rotor say {ot}')
+        return ot
+
+
+    def anti_rotors_m(self,rotor,smb):
+        for i,el in enumerate(rotor[2]):
+            if el == smb:
+                return rotor[1][i]
+
+    def anti_going_all_rotor(self,rotors,smb):
+        ot = smb
+        rotors1 = rotors.copy()
+        rotors1.reverse()
+        for el in rotors1:
+            ot = self.anti_rotors_m(el,ot)
+            print(f'rotor say {ot}')
+        return ot
+
+    def discriptor_going(self,discriptor,smb):
+        for i,el in enumerate(discriptor[0]):
+            if el == smb:
+                return discriptor[1][i]
+
+    def anti_discriptor_going(self,discriptor,smb):
+        for i,el in enumerate(discriptor[1]):
+            if el == smb:
+                return discriptor[0][i]
+
+    def move_alph(self,alph,n):
+        out = []
+        for el in alph:
+            out.append((el+n)%len(alph))
+        return out
+
+    def generete_key(self):
+        out = ""
+        for no in self.activ_rotors:
+            out+=f'{self.rotors[no][0]}/'
+            p1 = self.zips(self.rotors[no][1],"-")
+            out += f'{p1}/'
+            p2 = self.zips(self.rotors[no][2], "-")
+            out+=f'{p2}#'
+        out += f'|'
+        #for el in self.activ_rotors:
+            #out+=f'{el}/'
+        #out += f'|'
+        for el in self.discriptor:
+            out+=self.zips(el,'-')
+            out+='/'
+        out += f'|'
+        for el in self.panel:
+            out+=f'{el[0]}-{el[1]}/'
+        out += f'|'
+        out+=self.zips(self.rotarsm,'-')
+        print(out)
+        print(len(out))
+        print(7777)
+        return out
+
+    def cript(self,key,text,alph):
+        ad = key.split('|') # el
+        #1 act - rotors
+        arotors = []
+        adr = ad[0].split('#')
+        adr.pop()
+        for el in adr:
+            c=el.split('/')
+            out = [int(c[0])]
+            for el in c[1:]:
+                print(el)
+                out.append(self.anti_zips(el,'-'))
+            arotors.append(out)
+        print(f'st1out - {arotors}')
+        print(f'rl1our - {self.activ_rotors}')
+        # 2 disriptor
+        discriptor = []
+        addc = ad[1].split('/')
+        addc.pop()
+        for el in addc:
+            discriptor.append(self.anti_zips(el,'-'))
+        print(f'st2out - {discriptor}')
+        print(f'dr2our - {self.discriptor}')
+        # 3 panel
+        panel = []
+        adpn = ad[2].split('/')
+        adpn.pop()
+        for el in adpn:
+            panel.append(self.anti_zips(el,'-'))
+        print(f'st3out - {panel}')
+        print(f'pn3our - {self.panel}')
+        # rotor move
+        rotorer_mv = self.anti_zips(ad[3],'-')
+        print(f'st4out - {rotorer_mv}')
+        print(f'rm4our - {self.rotarsm}')
+        #cript
+        #так 2ая попытка выйди
+        out = []
+        for el in text:
+            print('***')
+            for i in range(len(alph)):
+                if alph[i] == el:
+                    smb = i
+                    break
+            print(f'0 - {smb}')
+            smb = self.going_panel(panel,smb)
+            print(f'1 - {smb}')
+            #print(arotors)
+
+            smb=self.going_all_rotor(arotors,smb)
+            print(f'2 - {smb}')
+            smb = self.discriptor_going(discriptor,smb)
+            print(f'3 - {smb}')
+            #arotors.reverse()
+            #print(arotors)
+            smb = self.going_all_rotor(arotors,smb)
+            print(f'4 - {smb}')
+            smb = self.going_panel(panel,smb)
+            print(f'5 - {smb}')
+            #print(f'out - {smb}')
+            out.append(smb)
+            arotors.reverse()
+            for i,el in enumerate(rotorer_mv):
+                if el == 26:
+                    rotorer_mv[i] = 0
+                    arotors[i][1] = self.move_alph(arotors[i][1],1)
+                else:
+                    rotorer_mv[i]+=1
+                    arotors[i][1] = self.move_alph(arotors[i][1],1)
+                    break
+
+
+
+
+
+        print(out)
+        return out
+
+    def encript(self,key,text,alph):
+        ad = key.split('|') # el
+        #1 act - rotors
+        arotors = []
+        adr = ad[0].split('#')
+        adr.pop()
+        for el in adr:
+            c=el.split('/')
+            out = [int(c[0])]
+            for el in c[1:]:
+                print(el)
+                out.append(self.anti_zips(el,'-'))
+            arotors.append(out)
+        #print(f'st1out - {arotors}')
+       # print(f'rl1our - {self.activ_rotors}')
+        # 2 disriptor
+        discriptor = []
+        addc = ad[1].split('/')
+        addc.pop()
+        for el in addc:
+            discriptor.append(self.anti_zips(el,'-'))
+        #print(f'st2out - {discriptor}')
+        #print(f'dr2our - {self.discriptor}')
+        # 3 panel
+        panel = []
+        adpn = ad[2].split('/')
+        adpn.pop()
+        for el in adpn:
+            panel.append(self.anti_zips(el,'-'))
+        #print(f'st3out - {panel}')
+        #print(f'pn3our - {self.panel}')
+        rotorer_mv = self.anti_zips(ad[3], '-')
+        #print(f'st4out - {rotorer_mv}')
+        #print(f'rm4our - {self.rotarsm}')
+        #cript
+        #так 2ая попытка выйди
+        out = []
+        for el in text:
+            print('***')
+            for i in range(len(alph)):
+                if alph[i] == el:
+                    smb = i
+                    break
+            print(f'0 - {smb}')
+            smb = self.going_panel(panel,smb)
+            print(f'1 - {smb}')
+            #print(arotors)
+
+            smb=self.anti_going_all_rotor(arotors,smb)
+            print(f'2 - {smb}')
+            smb = self.anti_discriptor_going(discriptor,smb)
+            print(f'3 - {smb}')
+            #arotors.reverse()
+            #print(arotors)
+            smb = self.anti_going_all_rotor(arotors,smb)
+            print(f'4 - {smb}')
+            smb = self.going_panel(panel,smb)
+            print(f'5 - {smb}')
+            #print(f'out - {smb}')
+            out.append(smb)
+            arotors.reverse()
+            for i,el in enumerate(rotorer_mv):
+                if el == 26:
+                    rotorer_mv[i] = 0
+                    arotors[i][1] = self.move_alph(arotors[i][1],1)
+                else:
+                    rotorer_mv[i]+=1
+                    arotors[i][1] = self.move_alph(arotors[i][1],1)
+                    break
+
+        print(out)
+        return out
+
+
+
+
+
+alphabet = [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+    'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+    'u', 'v', 'w', 'x', 'y', 'z'
+]
+sv = ""
+message = 'hello world'
+t = Criptogtaphi(alphabet,5,3)
+kl = t.generete_key()
+k = t.cript(kl,message,alphabet)
+st = ""
+for el in k:
+    st+=alphabet[el]
+print(st)
+sv = st
+k5 = t.encript(kl,st,alphabet)
+st = ""
+for el in k5:
+    st+=alphabet[el]
+print(st)
+print('-'*50)
+print(f'Переданно {message}')
+print(f'ключь {kl}')
+print(f'выход {sv}')
+print(f'расшифровка {st}')
